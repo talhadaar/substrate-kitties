@@ -9,7 +9,11 @@ pub use pallet::*;
 pub mod pallet {
 	use frame_support::{pallet_prelude::*, traits::Currency};
 	use frame_system::pallet_prelude::*;
-
+	use scale_info::TypeInfo;
+	#[cfg(feature = "std")]
+	use serde::{Deserialize, Serialize};
+	// #[cfg(feature = "std")]
+	// use serde::{Deserialize, Serialize};
 	// TODO Part II: Struct for holding Kitty information.
 
 	// TODO Part II: Enum and implementation to handle Gender type in Kitty struct.
@@ -18,6 +22,28 @@ pub mod pallet {
 	#[pallet::generate_store(pub(super) trait Store)]
 	pub struct Pallet<T>(_);
 
+	/// Associated type expects a type implementing the AccountId type
+	type AccountOf<T> = <T as frame_system::Config>::AccountId;
+	/// Associated type expects a type implementing the AccountId type, implementing a Balance
+	type BalanceOf<T> =
+		<<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
+
+	#[derive(Clone, Encode, Decode, PartialEq, RuntimeDebug, TypeInfo)]
+	#[scale_info(skip_type_params(T))]
+	#[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
+	pub enum Gender {
+		Male,
+		Female,
+	}
+	// Struct for holding Kitty information.
+	#[derive(Clone, Encode, Decode, PartialEq, RuntimeDebug, TypeInfo)]
+	#[scale_info(skip_type_params(T))]
+	pub struct Kitty<T: Config> {
+		pub dna: [u8; 16],
+		pub price: Option<BalanceOf<T>>,
+		pub gender: Gender,
+		pub owner: AccountOf<T>,
+	}
 	/// Configure the pallet by specifying the parameters and types it depends on.
 	#[pallet::config]
 	pub trait Config: frame_system::Config {
@@ -43,6 +69,9 @@ pub mod pallet {
 	}
 
 	// ACTION: Storage item to keep a count of all existing Kitties.
+	#[pallet::storage]
+	#[pallet::getter(fn total_supply)]
+	pub(super) type TotalSupply<T: Config> = StorageValue<_, u64, ValueQuery>;
 
 	// TODO Part II: Remaining storage items.
 

@@ -12,6 +12,7 @@ repository = "https://github.com/substrate-developer-hub/substrate-node-template
 targets = ["x86_64-unknown-linux-gnu"]
 
 [dependencies]
+serde = '1.0.143'
 codec = { package = "parity-scale-codec", version = "3.0.0", default-features = false, features = [
 	"derive",
 ] }
@@ -28,6 +29,7 @@ sp-runtime = { version = "6.0.0", default-features = false, git = "https://githu
 [features]
 default = ["std"]
 std = [
+	"serde/std",
 	"codec/std",
 	"frame-benchmarking/std",
 	"frame-support/std",
